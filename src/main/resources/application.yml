@@ -14,6 +14,7 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
+      table-underline: true # ✅ 表字段为下划线格式时加这个更保险
       logic-delete-field: is_delete # 全局逻辑删除的实体字段名
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
