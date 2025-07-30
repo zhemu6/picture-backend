@@ -92,8 +92,9 @@ public class UserController {
      * @param userAddRequest 用户添加封装类
      * @return 添加的用户id
      */
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+
     @PostMapping("/add")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Long> addUser(UserAddRequest userAddRequest){
         ThrowUtils.throwIf(userAddRequest == null, ErrorCode.PARAMS_ERROR);
         log.info("管理员创建用户功能，请求参数为：{}",userAddRequest);
@@ -106,8 +107,9 @@ public class UserController {
      * @param id 用户id
      * @return 查询到的用户信息
      */
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+
     @GetMapping("/get")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<User> getUserById(Long id){
         ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR);
         log.info("管理员根据id查询用户，请求参数为：{}",id);
@@ -133,8 +135,8 @@ public class UserController {
      * @param deleteRequest 删除的包装类
      * @return 是否删除成功
      */
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> deleteUserById(@RequestBody DeleteRequest deleteRequest){
         ThrowUtils.throwIf(deleteRequest == null, ErrorCode.PARAMS_ERROR);
         log.info("管理员根据删除用户，请求参数为：{}",deleteRequest);
@@ -147,8 +149,9 @@ public class UserController {
      * @param userUpdateRequest 更新用户包装类
      * @return 是否更新成功
      */
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+
     @PostMapping("/update")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest){
         ThrowUtils.throwIf(userUpdateRequest == null, ErrorCode.PARAMS_ERROR);
         log.info("管理员更新用户，请求参数为：{}",userUpdateRequest);
@@ -161,8 +164,9 @@ public class UserController {
      * @param userQueryRequest 用户查询类
      * @return UserVO列表
      */
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+
     @PostMapping("/list/page/vo")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest){
         ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR);
         log.info("管理员分页获取用户列表，请求参数为：{}",userQueryRequest);

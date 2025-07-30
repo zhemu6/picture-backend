@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lushihao.picturebackend.common.DeleteRequest;
+import com.lushihao.picturebackend.constant.UserConstant;
 import com.lushihao.picturebackend.exception.BusinessException;
 import com.lushihao.picturebackend.exception.ErrorCode;
 import com.lushihao.picturebackend.exception.ThrowUtils;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.lushihao.picturebackend.constant.UserConstant.USER_LOGIN_STATE;
@@ -374,6 +376,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<UserVO> userVOList =  this.getUserV0List(userPage.getRecords());
         userVOPage.setRecords(userVOList);
         return userVOPage;
+    }
+
+    @Override
+    public boolean isAdmin(User user) {
+        return user!=null && UserRoleEnum.Admin.getValue().equals(user.getUserRole());
     }
 
 
