@@ -5,29 +5,34 @@
 <mapper namespace="com.lushihao.picturebackend.mapper.PictureMapper">
 
     <resultMap id="BaseResultMap" type="com.lushihao.picturebackend.model.entity.Picture">
-            <id property="id" column="id" />
-            <result property="url" column="url" />
-            <result property="name" column="name" />
-            <result property="introduction" column="introduction" />
-            <result property="category" column="category" />
-            <result property="tags" column="tags" />
-            <result property="picSize" column="pic_size" />
-            <result property="picWidth" column="pic_width" />
-            <result property="picHeight" column="pic_height" />
-            <result property="picScale" column="pic_scale" />
-            <result property="picFormat" column="pic_format" />
-            <result property="cameraModel" column="camera_model" />
-            <result property="lensModel" column="lens_model" />
-            <result property="fNumber" column="f_number" />
-            <result property="iso" column="iso" />
-            <result property="exposureTime" column="exposure_time" />
-            <result property="focalLength" column="focal_length" />
-            <result property="takenTime" column="taken_time" />
-            <result property="userId" column="user_id" />
-            <result property="createTime" column="create_time" />
-            <result property="editTime" column="edit_time" />
-            <result property="updateTime" column="update_time" />
-            <result property="isDelete" column="is_delete" />
+        <id property="id" column="id"/>
+        <result property="url" column="url"/>
+        <result property="name" column="name"/>
+        <result property="introduction" column="introduction"/>
+        <result property="category" column="category"/>
+        <result property="tags" column="tags"/>
+        <result property="picSize" column="pic_size"/>
+        <result property="picWidth" column="pic_width"/>
+        <result property="picHeight" column="pic_height"/>
+        <result property="picScale" column="pic_scale"/>
+        <result property="picFormat" column="pic_format"/>
+        <result property="cameraModel" column="camera_model"/>
+        <result property="lensModel" column="lens_model"/>
+        <result property="fNumber" column="f_number"/>
+        <result property="iso" column="iso"/>
+        <result property="exposureTime" column="exposure_time"/>
+        <result property="focalLength" column="focal_length"/>
+        <result property="takenTime" column="taken_time"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="editTime" column="edit_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDelete" column="is_delete"/>
+        <result property="reviewStatus" column="review_status"/>
+        <result property="reviewMessage" column="review_message"/>
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="reviewTime" column="review_time"/>
+
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -35,6 +40,7 @@
         pic_size,pic_width,pic_height,pic_scale,pic_format,
         camera_model,lens_model,f_number,iso,exposure_time,
         focal_length,taken_time,user_id,create_time,edit_time,
-        update_time,is_delete
+        update_time,is_delete,review_status,review_message,reviewer_id,
+        review_time
     </sql>
 </mapper>
