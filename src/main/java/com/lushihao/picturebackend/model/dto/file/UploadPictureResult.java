@@ -18,6 +18,11 @@ public class UploadPictureResult {
     private String url;
 
     /**
+     * 缩略图url地址
+     */
+    private String thumbnailUrl;
+
+    /**
      * 图片名称
      */
     private String picName;

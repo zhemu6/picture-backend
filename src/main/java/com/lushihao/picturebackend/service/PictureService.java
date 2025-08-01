@@ -14,6 +14,7 @@ import com.lushihao.picturebackend.model.vo.PictureVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 
 /**
 * @author lushihao
@@ -30,6 +31,9 @@ public interface PictureService extends IService<Picture> {
      * @return PictureVO
      */
     PictureVO uploadPicture(Object inputSource, PictureUploadRequest pictureUploadRequest, User loginUser);
+
+
+    String uploadAvatar(MultipartFile multipartFile, User loginUser);
 
     /**
      * 获取查询条件 根据用户传入的参数 构造SQL查询
@@ -84,4 +88,6 @@ public interface PictureService extends IService<Picture> {
      * @return 上传的图片数量
      */
     Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
+
+    void clearPictureFile(Picture oldPicture);
 }

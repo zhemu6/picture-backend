@@ -22,6 +22,7 @@ import com.lushihao.picturebackend.service.UserService;
 import com.lushihao.picturebackend.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -382,6 +383,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public boolean isAdmin(User user) {
         return user!=null && UserRoleEnum.Admin.getValue().equals(user.getUserRole());
     }
+
 
 
 }

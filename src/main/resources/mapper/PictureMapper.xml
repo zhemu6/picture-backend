@@ -7,6 +7,7 @@
     <resultMap id="BaseResultMap" type="com.lushihao.picturebackend.model.entity.Picture">
         <id property="id" column="id"/>
         <result property="url" column="url"/>
+        <result property="thumbnailUrl" column="thumbnail_url"/>
         <result property="name" column="name"/>
         <result property="introduction" column="introduction"/>
         <result property="category" column="category"/>
@@ -33,10 +34,11 @@
         <result property="reviewerId" column="reviewer_id"/>
         <result property="reviewTime" column="review_time"/>
 
+
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,url,name,introduction,category,tags,
+        id,url,thumbnail_url,name,introduction,category,tags,
         pic_size,pic_width,pic_height,pic_scale,pic_format,
         camera_model,lens_model,f_number,iso,exposure_time,
         focal_length,taken_time,user_id,create_time,edit_time,

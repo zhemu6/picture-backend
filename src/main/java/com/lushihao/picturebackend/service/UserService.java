@@ -8,6 +8,7 @@ import com.lushihao.picturebackend.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lushihao.picturebackend.model.vo.LoginUserVO;
 import com.lushihao.picturebackend.model.vo.UserVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -114,5 +115,7 @@ public interface UserService extends IService<User> {
      * @return idAdmin
      */
     boolean isAdmin(User user);
+
+
 }
 
