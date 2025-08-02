@@ -140,6 +140,25 @@ public class PictureVO implements Serializable {
      */
     private UserVO user;
 
+    /**
+     * 点赞数
+     */
+    private Long likeCount;
+
+    /**
+     * 当前用户是否点过赞
+     */
+    private boolean hasLiked;
+
+    /**
+     * 收藏数
+     */
+    private Long favoriteCount;
+
+    /**
+     * 当前用户是否点收藏
+     */
+    private boolean hasFavorite;
 
     /**
      * 封装类转对象

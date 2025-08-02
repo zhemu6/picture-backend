@@ -27,6 +27,8 @@ import com.lushihao.picturebackend.model.entity.User;
 import com.lushihao.picturebackend.model.enums.PictureReviewsStatusEnum;
 import com.lushihao.picturebackend.model.vo.PictureVO;
 import com.lushihao.picturebackend.model.vo.UserVO;
+import com.lushihao.picturebackend.service.PictureFavoriteService;
+import com.lushihao.picturebackend.service.PictureLikeService;
 import com.lushihao.picturebackend.service.PictureService;
 import com.lushihao.picturebackend.mapper.PictureMapper;
 import com.lushihao.picturebackend.service.UserService;
@@ -43,7 +45,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,11 +58,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         implements PictureService {
-    private final FileManager fileManager;
+
+    @Resource
+    private FileManager fileManager;
 
     @Resource
     private UserService userService;
-
+    @Resource
+    private PictureLikeService pictureLikeService;
+    @Resource
+    private PictureFavoriteService pictureFavoriteService;
     @Resource
     private FilePictureUpload filePictureUpload;
     @Resource
@@ -69,10 +75,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     @Autowired
     private CosManager cosManager;
 
-
-    public PictureServiceImpl(FileManager fileManager) {
-        this.fileManager = fileManager;
-    }
 
     /**
      * 上传图片
@@ -304,12 +306,26 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
         // 对象转封装类
         PictureVO pictureVO = PictureVO.objToVo(picture);
+        User loginUser = userService.getLoginUser(request);
+        // 获取图片id和登录用户id
+        Long pictureId = picture.getId();
+        Long loginUserId = loginUser.getId();
+        // 获取当前用户是否给他点赞
+        boolean hasUserLiked = pictureLikeService.hasUserLiked(loginUserId, pictureId);
+        // 获取图片点赞数和收藏数
+        Long pictureLikeCount = this.getPictureLikeCount(pictureId);
+        Long pictureFavoriteCount = this.getPictureFavoriteCount(pictureId);
+        pictureVO.setLikeCount(pictureLikeCount);
+        pictureVO.setFavoriteCount(pictureFavoriteCount);
+        pictureVO.setHasLiked(pictureLikeService.hasUserLiked(loginUserId, pictureId));
+        pictureVO.setHasFavorite(pictureFavoriteService.hasUserFavorite(loginUserId,pictureId));
         // 关联查询用户信息id
         Long userId = picture.getUserId();
         if (userId != null && userId > 0) {
             User user = userService.getById(userId);
             UserVO userVO = userService.getUserVO(user);
             pictureVO.setUser(userVO);
+
         }
         return pictureVO;
     }
@@ -516,11 +532,20 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 删除缩略图
         String thumbnailUrl = oldPicture.getThumbnailUrl();
         if (StrUtil.isNotBlank(thumbnailUrl)) {
-            cosManager.deleteObject(thumbnailUrl);
+            cosManager.deleteObject(thumbnailUrl );
         }
 
-
         ThrowUtils.throwIf(count > 1, ErrorCode.PARAMS_ERROR, "该图片被其他记录使用，不能删除");
+    }
+
+    @Override
+    public Long getPictureLikeCount(Long pictureId) {
+        return pictureLikeService.countByPictureId(pictureId);
+    }
+
+    @Override
+    public Long getPictureFavoriteCount(Long pictureId) {
+        return pictureFavoriteService.countByPictureId(pictureId);
     }
 
 }

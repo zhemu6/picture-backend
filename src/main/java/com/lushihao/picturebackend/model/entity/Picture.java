@@ -11,6 +11,7 @@ import lombok.Data;
 
 /**
  * 图片
+ * @author lushihao
  * @TableName picture
  */
 @TableName(value ="picture")
