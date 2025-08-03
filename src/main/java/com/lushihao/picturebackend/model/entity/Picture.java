@@ -163,5 +163,10 @@ public class Picture implements Serializable {
      */
     private Date reviewTime;
 
+    /**
+     * 空间id
+     */
+    private Long spaceId;
+
 
 }

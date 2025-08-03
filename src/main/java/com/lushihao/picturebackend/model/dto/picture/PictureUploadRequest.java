@@ -14,17 +14,18 @@ import java.util.List;
 @Data
 public class PictureUploadRequest  implements Serializable {
     private static final long serialVersionUID = -4738311912109569403L;
-    /*
+
+    /**
      * 图片的id 用于修改
      */
     private Long  id;
 
-    /*
+    /**
      * 图片的URL地址
      */
     private String fileUrl;
 
-    /*
+    /**
      * 图片的名称
      */
     private String fileName;
@@ -38,5 +39,10 @@ public class PictureUploadRequest  implements Serializable {
      * 标签
      */
     private String tags;
+
+    /**
+     * 空间id
+     */
+    private Long spaceId;
 
 }

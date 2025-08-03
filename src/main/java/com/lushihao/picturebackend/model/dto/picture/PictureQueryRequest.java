@@ -137,5 +137,15 @@ public class PictureQueryRequest extends PageRequest implements Serializable {
      */
     private Date reviewTime;
 
+    /**
+     * 空间id
+     */
+    private Long spaceId;
+
+    /**
+     * 是否值查询spaceId为null的数据 如果为true 代表查公开的数据 否则查私有的数据
+     */
+    private boolean nullSpaceId;
+
 
 }

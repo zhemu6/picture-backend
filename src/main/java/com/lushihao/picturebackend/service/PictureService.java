@@ -3,10 +3,8 @@ package com.lushihao.picturebackend.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.lushihao.picturebackend.model.dto.picture.PictureQueryRequest;
-import com.lushihao.picturebackend.model.dto.picture.PictureReviewRequest;
-import com.lushihao.picturebackend.model.dto.picture.PictureUploadByBatchRequest;
-import com.lushihao.picturebackend.model.dto.picture.PictureUploadRequest;
+import com.lushihao.picturebackend.common.DeleteRequest;
+import com.lushihao.picturebackend.model.dto.picture.*;
 import com.lushihao.picturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lushihao.picturebackend.model.entity.User;
@@ -100,4 +98,22 @@ public interface PictureService extends IService<Picture> {
     Long getPictureLikeCount(Long pictureId);
 
     Long getPictureFavoriteCount(Long pictureId);
+
+    /**
+     * 校验空间权限
+     * @param loginUser 获得用户
+     * @param picture 获取图片
+     */
+    void checkPictureAuth(User loginUser,Picture picture);
+
+    /**
+     * 删除 图片
+     * @param deleteRequest
+     * @param request
+     * @return
+     */
+    void deletePicture(DeleteRequest deleteRequest, HttpServletRequest request);
+
+
+    void   editPicture(PictureEditRequest editRequest, HttpServletRequest request);
 }

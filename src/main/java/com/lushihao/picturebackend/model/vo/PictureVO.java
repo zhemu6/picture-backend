@@ -161,6 +161,11 @@ public class PictureVO implements Serializable {
     private boolean hasFavorite;
 
     /**
+     * 空间id
+     */
+    private Long spaceId;
+
+    /**
      * 封装类转对象
      */
     public static Picture voToObj(PictureVO pictureVO) {

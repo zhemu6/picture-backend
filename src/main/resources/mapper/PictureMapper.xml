@@ -33,6 +33,7 @@
         <result property="reviewMessage" column="review_message"/>
         <result property="reviewerId" column="reviewer_id"/>
         <result property="reviewTime" column="review_time"/>
+        <result property="spaceId" column="space_id"/>
 
 
     </resultMap>
@@ -43,6 +44,6 @@
         camera_model,lens_model,f_number,iso,exposure_time,
         focal_length,taken_time,user_id,create_time,edit_time,
         update_time,is_delete,review_status,review_message,reviewer_id,
-        review_time
+        review_time,space_id
     </sql>
 </mapper>
