@@ -86,4 +86,9 @@ public class UploadPictureResult {
      * 拍摄时间（EXIF）
      */
     private Date takenTime;
+
+    /**
+     * 图片主色调
+     */
+    private String picColor;
 }

@@ -83,7 +83,7 @@ public abstract class PictureUploadTemplate {
                 if(objectList.size()>1){
                     thumbnailObject = objectList.get(1);
                 }
-                return buildResult(originFileName,file,thumbnailObject,compressCiObject);
+                return buildResult(originFileName, file, thumbnailObject, compressCiObject, imageInfo);
             }
             // 封装原图返回结果
             return buildResult(imageInfo,originFileName,file,uploadPath);
@@ -102,12 +102,13 @@ public abstract class PictureUploadTemplate {
 
 
     /**
-     * 获取图片返回的记过
+     * 获取图片返回的结果
      * @param originFileName
      * @param compressCiObject
+     *
      * @return
      */
-    private UploadPictureResult buildResult(String originFileName,File file,CIObject thumbnailObject, CIObject compressCiObject) {
+    private UploadPictureResult buildResult(String originFileName, File file, CIObject thumbnailObject, CIObject compressCiObject, ImageInfo imageInfo) {
         // 创建一个图片上传结果类
         UploadPictureResult uploadPictureResult = new UploadPictureResult();
         int picWidth = compressCiObject.getWidth();
@@ -117,6 +118,7 @@ public abstract class PictureUploadTemplate {
         uploadPictureResult.setPicWidth(picWidth);
         uploadPictureResult.setPicHeight(picHeight);
         uploadPictureResult.setPicScale(picScale);
+        uploadPictureResult.setPicColor(imageInfo.getAve());
         // 设置缩略图地址
         uploadPictureResult.setThumbnailUrl( cosClientConfig.getHost() + "/" + thumbnailObject.getKey());
         uploadPictureResult.setPicFormat(compressCiObject.getFormat());
@@ -184,6 +186,7 @@ public abstract class PictureUploadTemplate {
         uploadPictureResult.setPicHeight(picHeight);
         uploadPictureResult.setPicScale(picScale);
         uploadPictureResult.setPicFormat(imageInfo.getFormat());
+        uploadPictureResult.setPicColor(imageInfo.getAve());
         uploadPictureResult.setPicSize(FileUtil.size(file));
         uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);
         // 读取 EXIF 拍摄参数信息并填充

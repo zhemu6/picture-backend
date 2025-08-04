@@ -364,6 +364,31 @@ public class PictureController {
         return ResultUtils.success(count);
     }
 
+    /**
+     * 根据颜色搜索图片
+     *
+     * @param searchPictureByColorRequest 空间id 图片颜色 16
+     * @param request                     用户获取登录用户
+     * @return 按照相似度 返回一个PictureVO列表
+     */
+    @PostMapping("/search/color")
+    public BaseResponse<List<PictureVO>> searchPictureByColor(@RequestBody SearchPictureByColorRequest searchPictureByColorRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(searchPictureByColorRequest == null, ErrorCode.PARAMS_ERROR);
+        String picColor = searchPictureByColorRequest.getPicColor();
+        Long spaceId = searchPictureByColorRequest.getSpaceId();
+        List<PictureVO> pictureVOList = pictureService.searchPictureByColor(spaceId, picColor, request);
+        return ResultUtils.success(pictureVOList);
+    }
+
+    /**
+     * 批量编辑图片
+     */
+    @PostMapping("/edit/batch")
+    public BaseResponse<Boolean> editPictureByBatch(@RequestBody PictureEditByBatchRequest editRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(editRequest == null, ErrorCode.PARAMS_ERROR);
+        pictureService.editPictureByBatch(editRequest, request);
+        return ResultUtils.success(true);
+    }
 
 }
 

@@ -81,8 +81,6 @@ public class CosManager {
             thumbnailRule.setBucket(cosClientConfig.getBucket());
             rules.add(thumbnailRule);
         }
-
-
         // 构造处理参数
         picOperations.setRules(rules);
         putObjectRequest.setPicOperations(picOperations);

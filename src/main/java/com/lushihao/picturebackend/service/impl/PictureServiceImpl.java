@@ -28,6 +28,7 @@ import com.lushihao.picturebackend.model.vo.PictureVO;
 import com.lushihao.picturebackend.model.vo.UserVO;
 import com.lushihao.picturebackend.service.*;
 import com.lushihao.picturebackend.mapper.PictureMapper;
+import com.lushihao.picturebackend.util.ColorSimilarUtils;
 import com.lushihao.picturebackend.util.SSLUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.transaction.Transaction;
@@ -43,8 +44,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -167,7 +170,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             tags = pictureUploadRequest.getTags();
         }
 
-
         picture.setTags(tags);
         picture.setCategory(category);
         picture.setName(picName);
@@ -175,6 +177,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         picture.setPicWidth(uploadPictureResult.getPicWidth());
         picture.setPicHeight(uploadPictureResult.getPicHeight());
         picture.setPicScale(uploadPictureResult.getPicScale());
+
         picture.setPicFormat(uploadPictureResult.getPicFormat());
         picture.setUserId(loginUser.getId());
         picture.setCameraModel(uploadPictureResult.getCameraModel());
@@ -184,6 +187,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         picture.setExposureTime(uploadPictureResult.getExposureTime());
         picture.setFocalLength(uploadPictureResult.getFocalLength());
         picture.setTakenTime(uploadPictureResult.getTakenTime());
+//        picture.setPicColor((uploadPictureResult.getPicColor()));
+        picture.setPicColor(ColorSimilarUtils.expandHexColor(uploadPictureResult.getPicColor()));
         // 填入审核参数
         this.fillReviewParams(picture, loginUser);
         // 如果pictureId不为空 则为更新图片
@@ -265,7 +270,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Date reviewTime = pictureQueryRequest.getReviewTime();
         Long spaceId = pictureQueryRequest.getSpaceId();
         boolean nullSpaceId = pictureQueryRequest.isNullSpaceId();
-
+        Date startEditTime = pictureQueryRequest.getStartEditTime();
+        Date endEditTime = pictureQueryRequest.getEndEditTime();
 
         // 定义一个新的LambdaQueryWrapper
         LambdaQueryWrapper<Picture> lambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -301,6 +307,11 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         lambdaQueryWrapper.eq(ObjUtil.isNotEmpty(reviewerId), Picture::getReviewerId, reviewerId);
         lambdaQueryWrapper.like(ObjUtil.isNotEmpty(reviewMessage), Picture::getReviewMessage, reviewMessage);
 
+        // 搜索时间实现
+        // >=开始时间
+        lambdaQueryWrapper.ge(ObjUtil.isNotEmpty(startEditTime), Picture::getEditTime, startEditTime);
+        // <结束时间
+        lambdaQueryWrapper.lt(ObjUtil.isNotEmpty(endEditTime), Picture::getEditTime, endEditTime);
         if (CollUtil.isNotEmpty(tags)) {
             for (String tag : tags) {
                 lambdaQueryWrapper.like(Picture::getTags, "\"" + tag + "\"");
@@ -694,6 +705,118 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         boolean isEdit = this.updateById(picture);
         ThrowUtils.throwIf(!isEdit, ErrorCode.OPERATION_ERROR);
     }
+
+    /**
+     * 根据颜色搜索图片
+     *
+     * @param spaceId  空间id
+     * @param picColor 图片颜色 16
+     * @param request  用户获取登录用户
+     * @return 按照相似度 返回一个PictureVO列表
+     */
+    @Override
+    public List<PictureVO> searchPictureByColor(Long spaceId, String picColor, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        // 1. 参数校验
+        // 1.1 传入参数不能为空
+        ThrowUtils.throwIf(spaceId == null || StrUtil.isBlank(picColor), ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.PARAMS_ERROR);
+        // 1.2 用户有这个空间相关权限
+        Space space = spaceService.getById(spaceId);
+        ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+        ThrowUtils.throwIf(!loginUser.getId().equals(space.getUserId()), ErrorCode.NO_AUTH_ERROR, "没有空间访问权限");
+        // 2.查询该空间下所有有主色调的图片
+        // 2.1 首先查询有主色调的图片
+        List<Picture> pictureList = this.lambdaQuery().eq(Picture::getSpaceId, spaceId).isNotNull(Picture::getPicColor).list();
+        // 如果没有图片 直接返回空列表
+        if (CollUtil.isEmpty(pictureList)) {
+            return Collections.emptyList();
+        }
+        // 将目标颜色转为 Color 对象
+        Color targetColor = Color.decode(picColor);
+        // 3.计算相似度
+        // 4. 计算相似度并排序
+        List<Picture> sortedPictures = pictureList.stream()
+                .sorted(Comparator.comparingDouble(picture -> {
+                    // 提取图片主色调(16进制)
+                    String hexColor = picture.getPicColor();
+                    // 没有主色调的图片放到最后
+                    if (StrUtil.isBlank(hexColor)) {
+                        return Double.MAX_VALUE;
+                    }
+                    Color pictureColor = Color.decode(hexColor);
+                    // 越大越相似
+                    return -ColorSimilarUtils.calculateSimilarity(targetColor, pictureColor);
+                }))
+                // 取前 12 个
+                .limit(12)
+                .collect(Collectors.toList());
+        // 转成VO
+        return sortedPictures.stream().map(PictureVO::objToVo).collect(Collectors.toList());
+    }
+
+    /**
+     * 批量编辑图片
+     *
+     * @param editRequest 编辑请求
+     * @param request     请求
+     */
+    @Override
+    public void editPictureByBatch(PictureEditByBatchRequest editRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        List<Long> pictureIds = editRequest.getPictureIds();
+        Long spaceId = editRequest.getSpaceId();
+        String category = editRequest.getCategory();
+        List<String> tags = editRequest.getTags();
+        String nameRule = editRequest.getNameRule();
+        // 1. 参数校验
+        // 1.1 传入参数不能为空
+        ThrowUtils.throwIf(spaceId == null||loginUser==null||CollUtil.isEmpty(pictureIds), ErrorCode.PARAMS_ERROR);
+        // 1.2 用户有这个空间相关权限
+        Space space = spaceService.getById(spaceId);
+        ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+        ThrowUtils.throwIf(!loginUser.getId().equals(space.getUserId()), ErrorCode.NO_AUTH_ERROR, "没有空间访问权限");
+        // 2.查询指定图片（仅选择需要的字段）
+        List<Picture> pictureList = this.lambdaQuery()
+                .select(Picture::getId, Picture::getSpaceId)
+                .eq(Picture::getSpaceId, spaceId)
+                .in(Picture::getId, pictureIds)
+                .list();
+        if(pictureList.isEmpty()){
+            return;
+        }
+        // 3.更新分类和标签
+        pictureList.forEach(picture -> {
+            if(StrUtil.isNotBlank(category)){
+                picture.setCategory(category);
+            }
+            if(!CollUtil.isEmpty(tags)){
+                picture.setTags(JSONUtil.toJsonStr(tags));
+            }
+        });
+        // 4. 批量重命名
+        fillPictureWithNameRule(pictureList, nameRule);
+        // 5. 操作数据库
+        boolean updated = this.updateBatchById(pictureList);
+        ThrowUtils.throwIf(!updated, ErrorCode.OPERATION_ERROR,"批量编辑失败");
+    }
+
+    private void fillPictureWithNameRule(List<Picture> pictureList, String nameRule) {
+        if (CollUtil.isEmpty(pictureList) || StrUtil.isBlank(nameRule)) {
+            return;
+        }
+        long count = 1;
+        try {
+            for(Picture picture : pictureList){
+                String pictureName = nameRule.replaceAll("\\{序号}", String.valueOf(count++));
+                picture.setName(pictureName);
+            }
+        }catch (Exception e){
+            log.error("名称解析错误",e);
+            throw new BusinessException(ErrorCode.OPERATION_ERROR,"名称解析错误");
+        }
+    }
+
 
 }
 

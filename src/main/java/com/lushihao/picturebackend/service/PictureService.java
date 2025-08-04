@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lushihao.picturebackend.common.DeleteRequest;
 import com.lushihao.picturebackend.model.dto.picture.*;
+import com.lushihao.picturebackend.model.dto.user.UserLoginRequest;
 import com.lushihao.picturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lushihao.picturebackend.model.entity.User;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.util.List;
 
 /**
 * @author lushihao
@@ -116,4 +118,23 @@ public interface PictureService extends IService<Picture> {
 
 
     void   editPicture(PictureEditRequest editRequest, HttpServletRequest request);
+
+    /**
+     * 根据颜色搜索图片
+     *
+     * @param spaceId  空间id
+     * @param picColor 图片颜色 16
+     * @param request  用户获取登录用户
+     * @return 按照相似度 返回一个PictureVO列表
+     */
+    List<PictureVO> searchPictureByColor(Long spaceId, String picColor, HttpServletRequest request);
+
+    /**
+     * 批量编辑图片
+     *
+     * @param editRequest 编辑请求
+     * @param request     请求
+     */
+    void editPictureByBatch(PictureEditByBatchRequest editRequest, HttpServletRequest request);
+
 }
