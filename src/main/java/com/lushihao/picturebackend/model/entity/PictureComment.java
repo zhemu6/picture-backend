@@ -2,6 +2,7 @@ package com.lushihao.picturebackend.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 
+import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ import lombok.Data;
  */
 @TableName(value ="picture_comment")
 @Data
-public class PictureComment {
+public class PictureComment implements Serializable {
     /**
      * 主键ID
      */

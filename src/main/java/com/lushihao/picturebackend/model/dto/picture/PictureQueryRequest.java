@@ -151,5 +151,6 @@ public class PictureQueryRequest extends PageRequest implements Serializable {
      * 根据编辑时间实现搜索
      */
     private Date startEditTime;
+
     private Date endEditTime;
 }
