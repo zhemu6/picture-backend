@@ -41,18 +41,26 @@ public class UrlPictureUpload extends PictureUploadTemplate {
 
     @Override
     protected String getOriginalFilename(Object inputSource) {
-        // 通过URL后缀获取原始文件名
         String fileUrl = (String) inputSource;
-        // 确保是图片的基础上判断是否存在合法后缀
+
+        // 去掉 URL 参数，只保留 ? 之前
+        int queryIndex = fileUrl.indexOf("?");
+        if (queryIndex != -1) {
+            fileUrl = fileUrl.substring(0, queryIndex);
+        }
+
+        // 获取后缀（例如 jpg）
         String suffix = FileUtil.getSuffix(fileUrl);
         final List<String> ALLOW_SUFFIX = Arrays.asList("png", "jpeg", "jpg", "webp");
-        // 若没有则加上
+
+        // 若不是允许的后缀，追加默认后缀（例如 .jpg）
         if (!ALLOW_SUFFIX.contains(suffix)) {
             fileUrl = fileUrl + typeRef.get();
         }
+        // 取干净的文件名
         return FileUtil.getName(fileUrl);
-
     }
+
 
     @Override
     protected void validPicture(Object inputSource) {

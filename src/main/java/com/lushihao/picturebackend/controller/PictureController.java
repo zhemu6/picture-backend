@@ -9,6 +9,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.lushihao.picturebackend.annotation.AuthCheck;
+import com.lushihao.picturebackend.api.aliyunai.AliYunAiApi;
+import com.lushihao.picturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.lushihao.picturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
 import com.lushihao.picturebackend.common.BaseResponse;
 import com.lushihao.picturebackend.common.DeleteRequest;
 import com.lushihao.picturebackend.common.ResultUtils;
@@ -64,6 +67,10 @@ public class PictureController {
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private SpaceService spaceService;
+    @Resource
+    private AliYunAiApi aliYunAiApi;
+
+
     /**
      * 构造本地缓存
      */
@@ -328,8 +335,51 @@ public class PictureController {
     @GetMapping("/tag_category")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
-        List<String> tagList = Arrays.asList("热门", "搞笑", "生活", "高清", "艺术", "校园", "背景", "简历", "创意");
-        List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
+        List<String> tagList = Arrays.asList(
+                // 📸 内容题材
+                "人像", "风景", "城市", "建筑", "动物", "植物", "街拍", "夜景", "星空", "美食", "旅行", "人文", "儿童", "海边",
+
+                // 🎨 风格视觉
+                "黑白", "复古", "清新", "极简", "HDR", "赛博朋克", "文艺", "梦幻", "国风", "暗黑", "胶片感",
+
+                // 🧠 情绪表达
+                "浪漫", "治愈", "孤独", "温暖", "悲伤", "冷静", "希望", "宁静", "热烈", "自由",
+
+                // 🛠 技法构图
+                "特写", "虚化", "长曝光", "剪影", "光影", "构图巧妙", "对称", "低角度", "高角度", "慢门", "反射", "色彩对比",
+
+                // 📷 设备品牌（合并进tag）
+                "佳能", "尼康", "索尼", "富士", "松下", "徕卡", "奥林巴斯", "宾得",
+                "小米", "华为", "苹果", "三星", "谷歌", "一加", "OPPO", "vivo"
+
+
+        );
+        // 🔥 热度标签
+//        "热门", "推荐", "高赞", "冷门佳作", "新锐摄影师", "AI生成"
+//        List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
+        List<String> categoryList = Arrays.asList(
+                // 人物、写真、肖像
+                "人像摄影",
+                // 自然风光、山川河海
+                "风光摄影",
+                // 街景、人文、城市记录
+                "城市街拍",
+                // 动物、植物、生态
+                "动植物",
+                // 新闻、社会、现场纪实
+                "纪实摄影",
+                // 多重曝光、概念摄影
+                "创意摄影",
+                // 黑白风格作品
+                "黑白摄影",
+                // 夜晚、灯光、星空
+                "夜景摄影",
+                // 无人机、高空视角
+                "航拍摄影",
+                // 出游摄影、打卡风景
+                "旅行摄影"
+        );
+
         pictureTagCategory.setTagList(tagList);
         pictureTagCategory.setCategoryList(categoryList);
         return ResultUtils.success(pictureTagCategory);
@@ -389,6 +439,25 @@ public class PictureController {
         pictureService.editPictureByBatch(editRequest, request);
         return ResultUtils.success(true);
     }
+
+
+    @PostMapping("/out_painting/create_task")
+    public BaseResponse<CreateOutPaintingTaskResponse> createPictureOutPaintingTask(@RequestBody CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, HttpServletRequest request){
+        ThrowUtils.throwIf(createPictureOutPaintingTaskRequest == null||createPictureOutPaintingTaskRequest.getPictureId()==null, ErrorCode.PARAMS_ERROR);
+        CreateOutPaintingTaskResponse response = pictureService.createPictureOutPaintingTask(createPictureOutPaintingTaskRequest, request);
+        return ResultUtils.success(response);
+    }
+
+    /**
+     * 查询 AI 扩图任务
+     */
+    @GetMapping("/out_painting/get_task")
+    public BaseResponse<GetOutPaintingTaskResponse> getPictureOutPaintingTask(String taskId) {
+        ThrowUtils.throwIf(StrUtil.isBlank(taskId), ErrorCode.PARAMS_ERROR);
+        GetOutPaintingTaskResponse task = aliYunAiApi.getOutPaintingTask(taskId);
+        return ResultUtils.success(task);
+    }
+
 
 }
 

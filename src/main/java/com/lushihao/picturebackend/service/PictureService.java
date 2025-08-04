@@ -3,6 +3,8 @@ package com.lushihao.picturebackend.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lushihao.picturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
+import com.lushihao.picturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.lushihao.picturebackend.common.DeleteRequest;
 import com.lushihao.picturebackend.model.dto.picture.*;
 import com.lushihao.picturebackend.model.dto.user.UserLoginRequest;
@@ -137,4 +139,11 @@ public interface PictureService extends IService<Picture> {
      */
     void editPictureByBatch(PictureEditByBatchRequest editRequest, HttpServletRequest request);
 
+    /**
+     * 创建AI拓图的工具类
+     * @param createPictureOutPaintingTaskRequest 拓图请求
+     * @param request 获取用户信息
+     * @return CreateOutPaintingTaskResponse对象
+     */
+    CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, HttpServletRequest request);
 }

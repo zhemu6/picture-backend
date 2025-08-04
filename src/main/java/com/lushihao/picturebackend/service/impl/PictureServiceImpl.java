@@ -9,6 +9,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lushihao.picturebackend.api.aliyunai.AliYunAiApi;
+import com.lushihao.picturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
+import com.lushihao.picturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.lushihao.picturebackend.common.DeleteRequest;
 import com.lushihao.picturebackend.exception.BusinessException;
 import com.lushihao.picturebackend.exception.ErrorCode;
@@ -31,7 +34,6 @@ import com.lushihao.picturebackend.mapper.PictureMapper;
 import com.lushihao.picturebackend.util.ColorSimilarUtils;
 import com.lushihao.picturebackend.util.SSLUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.transaction.Transaction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -79,6 +81,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     private SpaceService spaceService;
     @Resource
     private TransactionTemplate transactionTemplate;
+    @Resource
+    private AliYunAiApi aliYunAiApi;
 
     /**
      * 上传图片
@@ -771,7 +775,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         String nameRule = editRequest.getNameRule();
         // 1. 参数校验
         // 1.1 传入参数不能为空
-        ThrowUtils.throwIf(spaceId == null||loginUser==null||CollUtil.isEmpty(pictureIds), ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(spaceId == null || loginUser == null || CollUtil.isEmpty(pictureIds), ErrorCode.PARAMS_ERROR);
         // 1.2 用户有这个空间相关权限
         Space space = spaceService.getById(spaceId);
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
@@ -782,15 +786,15 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
                 .eq(Picture::getSpaceId, spaceId)
                 .in(Picture::getId, pictureIds)
                 .list();
-        if(pictureList.isEmpty()){
+        if (pictureList.isEmpty()) {
             return;
         }
         // 3.更新分类和标签
         pictureList.forEach(picture -> {
-            if(StrUtil.isNotBlank(category)){
+            if (StrUtil.isNotBlank(category)) {
                 picture.setCategory(category);
             }
-            if(!CollUtil.isEmpty(tags)){
+            if (!CollUtil.isEmpty(tags)) {
                 picture.setTags(JSONUtil.toJsonStr(tags));
             }
         });
@@ -798,8 +802,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         fillPictureWithNameRule(pictureList, nameRule);
         // 5. 操作数据库
         boolean updated = this.updateBatchById(pictureList);
-        ThrowUtils.throwIf(!updated, ErrorCode.OPERATION_ERROR,"批量编辑失败");
+        ThrowUtils.throwIf(!updated, ErrorCode.OPERATION_ERROR, "批量编辑失败");
     }
+
 
     private void fillPictureWithNameRule(List<Picture> pictureList, String nameRule) {
         if (CollUtil.isEmpty(pictureList) || StrUtil.isBlank(nameRule)) {
@@ -807,14 +812,41 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         }
         long count = 1;
         try {
-            for(Picture picture : pictureList){
+            for (Picture picture : pictureList) {
                 String pictureName = nameRule.replaceAll("\\{序号}", String.valueOf(count++));
                 picture.setName(pictureName);
             }
-        }catch (Exception e){
-            log.error("名称解析错误",e);
-            throw new BusinessException(ErrorCode.OPERATION_ERROR,"名称解析错误");
+        } catch (Exception e) {
+            log.error("名称解析错误", e);
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "名称解析错误");
         }
+    }
+
+
+    /**
+     * 创建AI拓图的工具类
+     *
+     * @param createPictureOutPaintingTaskRequest 拓图请求
+     * @param request                      获取用户信息
+     * @return CreateOutPaintingTaskResponse对象
+     */
+    @Override
+    public CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        // 参数校验
+        ThrowUtils.throwIf(createPictureOutPaintingTaskRequest==null,ErrorCode.PARAMS_ERROR,"参数不能为空");
+        Long pictureId = createPictureOutPaintingTaskRequest.getPictureId();
+        Picture picture = Optional.ofNullable(this.getById(pictureId)).orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR, "图片不存在"));
+        // 权限校验
+        checkPictureAuth(loginUser,picture);
+        // 创建一个请求参数
+        CreateOutPaintingTaskRequest createOutPaintingTaskRequest = new CreateOutPaintingTaskRequest();
+        CreateOutPaintingTaskRequest.Input input =  new CreateOutPaintingTaskRequest.Input();
+        input.setImageUrl(picture.getUrl());
+        createOutPaintingTaskRequest.setInput(input);
+        createOutPaintingTaskRequest.setParameters(createPictureOutPaintingTaskRequest.getParameters());
+        // 创建任务
+        return aliYunAiApi.createOutPaintingTask(createOutPaintingTaskRequest);
     }
 
 
