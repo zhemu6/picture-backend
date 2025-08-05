@@ -88,7 +88,7 @@ public class SpaceController {
         Space oldSpace = spaceService.getById(id);
         ThrowUtils.throwIf(oldSpace==null,ErrorCode.NOT_FOUND_ERROR);
         // 仅本人和管理员可以删除
-        ThrowUtils.throwIf(!oldSpace.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser),ErrorCode.NO_AUTH_ERROR);
+        spaceService.checkSpaceAuth(oldSpace, loginUser);
         // 操作数据库删除
         boolean isDelete = spaceService.removeById(id);
         ThrowUtils.throwIf(!isDelete,ErrorCode.OPERATION_ERROR);
@@ -198,7 +198,7 @@ public class SpaceController {
         Space oldSpace = spaceService.getById(id);
         ThrowUtils.throwIf(oldSpace==null,ErrorCode.NOT_FOUND_ERROR);
         // 仅本人和管理员可以删除
-        ThrowUtils.throwIf(!oldSpace.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser),ErrorCode.NO_AUTH_ERROR);
+        spaceService.checkSpaceAuth(oldSpace, loginUser);
         // 操作数据库更新 根据space有的值去更新数据库中相应位置的标签 此时数据库中是已经上传成功这些空间的
         boolean isEdit = spaceService.updateById(space);
         ThrowUtils.throwIf(!isEdit,ErrorCode.OPERATION_ERROR);

@@ -6,6 +6,7 @@ import com.lushihao.picturebackend.model.dto.space.SpaceQueryRequest;
 import com.lushihao.picturebackend.model.entity.Space;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lushihao.picturebackend.model.entity.User;
 import com.lushihao.picturebackend.model.vo.SpaceVO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,4 +67,7 @@ public interface SpaceService extends IService<Space> {
      * @return 创建空间的id
      */
     long addSpace(SpaceAddRequest spaceAddRequest,HttpServletRequest request);
+
+
+    void checkSpaceAuth(Space space, User loginUser);
 }

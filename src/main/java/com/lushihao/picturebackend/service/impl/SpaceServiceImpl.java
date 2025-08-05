@@ -12,12 +12,9 @@ import com.lushihao.picturebackend.exception.ErrorCode;
 import com.lushihao.picturebackend.exception.ThrowUtils;
 import com.lushihao.picturebackend.model.dto.space.SpaceAddRequest;
 import com.lushihao.picturebackend.model.dto.space.SpaceQueryRequest;
-import com.lushihao.picturebackend.model.entity.Picture;
 import com.lushihao.picturebackend.model.entity.Space;
 import com.lushihao.picturebackend.model.entity.User;
 import com.lushihao.picturebackend.model.enums.SpaceLevelEnum;
-import com.lushihao.picturebackend.model.enums.UserRoleEnum;
-import com.lushihao.picturebackend.model.vo.PictureVO;
 import com.lushihao.picturebackend.model.vo.SpaceVO;
 import com.lushihao.picturebackend.model.vo.UserVO;
 import com.lushihao.picturebackend.service.SpaceService;
@@ -212,6 +209,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         space.setUserId(loginUserId);
         // 如果用户创建的级别不等于common 并且用户的权限不是admin
         ThrowUtils.throwIf(!space.getSpaceLevel().equals(SpaceLevelEnum.COMMON.getValue())&& !userService.isAdmin(loginUser),ErrorCode.NO_AUTH_ERROR,"无权限创建指定级别空间");
+
         // 一个用户只能创建一个私有空间
         // 创建一个锁 每个用户一把锁
         Object lock = lockMap.computeIfAbsent(loginUserId,key ->new Object());
@@ -238,9 +236,17 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
     }
 
 
+    /**
+     * 校验空间权限 只有当 当前用户是空间的所有者才可以
+     *
+     * @param space     空间
+     * @param loginUser 登录用户
+     */
+    @Override
+    public void checkSpaceAuth(Space space, User loginUser) {
+        ThrowUtils.throwIf(!space.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR, "无权限操作");
 
-
-
+    }
 
 
 
