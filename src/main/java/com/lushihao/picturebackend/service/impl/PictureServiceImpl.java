@@ -10,8 +10,9 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lushihao.picturebackend.api.aliyunai.AliYunAiApi;
+import com.lushihao.picturebackend.api.aliyunai.model.CreateCommonSynthesisTaskRequest;
 import com.lushihao.picturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
-import com.lushihao.picturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.lushihao.picturebackend.api.aliyunai.model.CreateTaskResponse;
 import com.lushihao.picturebackend.common.DeleteRequest;
 import com.lushihao.picturebackend.exception.BusinessException;
 import com.lushihao.picturebackend.exception.ErrorCode;
@@ -102,7 +103,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             Space space = spaceService.getById(spaceId);
             ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
             // 校验用户是否有权限 仅空间的创建者才可以上传图片到空间中
-            ThrowUtils.throwIf(!space.getUserId().equals(loginUser.getId()), ErrorCode.NO_AUTH_ERROR, "没有权限");
+            // 修改为统一的权限校验
+//            ThrowUtils.throwIf(!space.getUserId().equals(loginUser.getId()), ErrorCode.NO_AUTH_ERROR, "没有权限");
             // 校验空间额度是否足够
             ThrowUtils.throwIf(space.getTotalCount() >= space.getMaxCount(), ErrorCode.OPERATION_ERROR, "空间条数不足");
             ThrowUtils.throwIf(space.getTotalSize() >= space.getMaxSize(), ErrorCode.OPERATION_ERROR, "空间大小不足");
@@ -123,7 +125,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             Picture oldPicture = this.getById(pictureId);
             ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
             // 仅本人或管理员可以编辑图片
-            ThrowUtils.throwIf(!Objects.equals(loginUser.getId(), oldPicture.getId()) && !userService.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR, "仅本人或管理员可以编辑图片");
+//            ThrowUtils.throwIf(!Objects.equals(loginUser.getId(), oldPicture.getId()) && !userService.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR, "仅本人或管理员可以编辑图片");
             // 在更新图片的这部分 我们需要校验新老空间id 是否相同
             // 没传spaceId 直接复用原有的
             if (spaceId == null) {
@@ -375,15 +377,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
      */
     @Override
     public PictureVO getPictureVO(Picture picture, HttpServletRequest request) {
-
         // 对象转封装类
         PictureVO pictureVO = PictureVO.objToVo(picture);
         User loginUser = userService.getLoginUser(request);
         // 获取图片id和登录用户id
         Long pictureId = picture.getId();
         Long loginUserId = loginUser.getId();
-        // 获取当前用户是否给他点赞
-        boolean hasUserLiked = pictureLikeService.hasUserLiked(loginUserId, pictureId);
         // 获取图片点赞数和收藏数
         Long pictureLikeCount = this.getPictureLikeCount(pictureId);
         Long pictureFavoriteCount = this.getPictureFavoriteCount(pictureId);
@@ -397,7 +396,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             User user = userService.getById(userId);
             UserVO userVO = userService.getUserVO(user);
             pictureVO.setUser(userVO);
-
         }
         return pictureVO;
     }
@@ -661,7 +659,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Picture oldPicture = this.getById(id);
         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
         // 修改为封装的的权限校验
-        this.checkPictureAuth(loginUser, oldPicture);
+//        this.checkPictureAuth(loginUser, oldPicture);
         // 开启事务
         transactionTemplate.execute(status -> {
             // 操作数据库
@@ -704,7 +702,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 如果老图片为空 代表
         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
         // 校验逻辑
-        this.checkPictureAuth(loginUser, oldPicture);
+//        this.checkPictureAuth(loginUser, oldPicture);
         // 操作数据库更新 根据picture有的值去更新数据库中相应位置的标签 此时数据库中是已经上传成功这些图片的
         boolean isEdit = this.updateById(picture);
         ThrowUtils.throwIf(!isEdit, ErrorCode.OPERATION_ERROR);
@@ -831,14 +829,14 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
      * @return CreateOutPaintingTaskResponse对象
      */
     @Override
-    public CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, HttpServletRequest request) {
+    public CreateTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         // 参数校验
         ThrowUtils.throwIf(createPictureOutPaintingTaskRequest==null,ErrorCode.PARAMS_ERROR,"参数不能为空");
         Long pictureId = createPictureOutPaintingTaskRequest.getPictureId();
         Picture picture = Optional.ofNullable(this.getById(pictureId)).orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR, "图片不存在"));
         // 权限校验
-        checkPictureAuth(loginUser,picture);
+//        checkPictureAuth(loginUser,picture);
         // 创建一个请求参数
         CreateOutPaintingTaskRequest createOutPaintingTaskRequest = new CreateOutPaintingTaskRequest();
         CreateOutPaintingTaskRequest.Input input =  new CreateOutPaintingTaskRequest.Input();
@@ -847,6 +845,32 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         createOutPaintingTaskRequest.setParameters(createPictureOutPaintingTaskRequest.getParameters());
         // 创建任务
         return aliYunAiApi.createOutPaintingTask(createOutPaintingTaskRequest);
+    }
+
+    /**
+     * 创建AI风格化的工具类
+     *
+     * @param createPictureCommonSynthesisTaskRequest 风格化请求
+     * @param request                                 获取用户信息
+     * @return CreateTaskResponse对象
+     */
+    @Override
+    public CreateTaskResponse createPictureCommonSynthesisTask(CreatePictureCommonSynthesisTaskRequest createPictureCommonSynthesisTaskRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        // 参数校验
+        ThrowUtils.throwIf(createPictureCommonSynthesisTaskRequest == null, ErrorCode.PARAMS_ERROR, "参数不能为空");
+        Long pictureId = createPictureCommonSynthesisTaskRequest.getPictureId();
+        Picture picture = Optional.ofNullable(this.getById(pictureId)).orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR, "图片不存在"));
+        // 权限校验
+//        checkPictureAuth(loginUser, picture);
+        // 创建一个请求参数
+        CreateCommonSynthesisTaskRequest createCommonSynthesisTaskRequest = new CreateCommonSynthesisTaskRequest();
+        CreateCommonSynthesisTaskRequest.Input input = new CreateCommonSynthesisTaskRequest.Input();
+        input.setBaseImageUrl(picture.getUrl());
+        input.setPrompt(createPictureCommonSynthesisTaskRequest.getPrompt());
+        createCommonSynthesisTaskRequest.setInput(input);
+        // 创建任务
+        return aliYunAiApi.createCommonSynthesisTask(createCommonSynthesisTaskRequest);
     }
 
 

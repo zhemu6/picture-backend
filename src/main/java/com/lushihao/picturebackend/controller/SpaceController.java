@@ -15,6 +15,7 @@ import com.lushihao.picturebackend.constant.PictureTagCategory;
 import com.lushihao.picturebackend.constant.UserConstant;
 import com.lushihao.picturebackend.exception.ErrorCode;
 import com.lushihao.picturebackend.exception.ThrowUtils;
+import com.lushihao.picturebackend.manager.auth.SpaceUserAuthManager;
 import com.lushihao.picturebackend.model.dto.picture.*;
 import com.lushihao.picturebackend.model.dto.space.*;
 import com.lushihao.picturebackend.model.entity.Picture;
@@ -27,6 +28,7 @@ import com.lushihao.picturebackend.model.vo.SpaceVO;
 import com.lushihao.picturebackend.service.SpaceService;
 import com.lushihao.picturebackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
@@ -57,6 +59,8 @@ public class SpaceController {
 
     @Resource
     private UserService userService;
+    @Autowired
+    private SpaceUserAuthManager spaceUserAuthManager;
 
     /**
      * 用户创建空间
@@ -144,7 +148,10 @@ public class SpaceController {
         // 查询数据库
         Space space = spaceService.getById(id);
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
-        return ResultUtils.success(spaceService.getSpaceVO(space, request));
+        SpaceVO spaceVO = spaceService.getSpaceVO(space, request);
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, userService.getLoginUser(request));
+        spaceVO.setPermissionList(permissionList);
+        return ResultUtils.success(spaceVO);
     }
 
     /**

@@ -22,6 +22,7 @@ import com.lushihao.picturebackend.service.PictureCommentService;
 import com.lushihao.picturebackend.mapper.PictureCommentMapper;
 import com.lushihao.picturebackend.service.PictureService;
 import com.lushihao.picturebackend.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
  * @description 针对表【picture_comment(图片评论表（支持楼中楼）)】的数据库操作Service实现
  * @createDate 2025-08-01 20:27:36
  */
+@Slf4j
 @Service
 public class PictureCommentServiceImpl extends ServiceImpl<PictureCommentMapper, PictureComment>
         implements PictureCommentService {
@@ -130,13 +132,13 @@ public class PictureCommentServiceImpl extends ServiceImpl<PictureCommentMapper,
 
         // 定义一个新的LambdaQueryWrapper
         LambdaQueryWrapper<PictureComment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-
         // 如果是用户的ID或者是权限 我们需要精准的查询
         lambdaQueryWrapper.eq(ObjUtil.isNotEmpty(id), PictureComment::getId, id);
         lambdaQueryWrapper.eq(ObjUtil.isNotEmpty(userId), PictureComment::getUserId, userId);
         lambdaQueryWrapper.eq(ObjUtil.isNotEmpty(pictureId), PictureComment::getPictureId, pictureId);
         lambdaQueryWrapper.like(StrUtil.isNotBlank(content), PictureComment::getContent, content);
         lambdaQueryWrapper.eq(ObjUtil.isNotEmpty(parentId), PictureComment::getParentId, parentId);
+
 
         final Map<String, SFunction<PictureComment, ?>> sortFieldMap;
         Map<String, SFunction<PictureComment, ?>> map = new HashMap<>();
@@ -146,9 +148,12 @@ public class PictureCommentServiceImpl extends ServiceImpl<PictureCommentMapper,
         map.put("pictureId", PictureComment::getPictureId);
         map.put("content", PictureComment::getContent);
         map.put("parentId", PictureComment::getParentId);
-
+        map.put("createTime", PictureComment::getCreateTime);
         sortFieldMap = Collections.unmodifiableMap(map);
+        log.info("排序字段为：{}，排序方向为：{}", sortField, sortOrder);
 
+
+        // 如果排序字段非空
         if (StrUtil.isNotEmpty(sortField)) {
             boolean isAsc = "ascend".equalsIgnoreCase(sortOrder);
             SFunction<PictureComment, ?> sortFunc = sortFieldMap.get(sortField);
@@ -166,7 +171,7 @@ public class PictureCommentServiceImpl extends ServiceImpl<PictureCommentMapper,
      * 分页获取评论VO类 这里是只查询一级评论 也就是一个图片的所有
      *
      * @param pictureCommentPage 分页对象
-     * @param request   请求
+     * @param request            请求
      * @return 分页VO对象
      */
     @Override

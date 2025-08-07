@@ -5,6 +5,7 @@ import com.lushihao.picturebackend.model.entity.Picture;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.io.Serializable;
 import java.util.List;
@@ -169,6 +170,11 @@ public class PictureVO implements Serializable {
      * 图片主色调
      */
     private String picColor;
+
+    /**
+     * 后端传给前端的空间权限列表
+     */
+    private List<String> permissionList = new ArrayList<>();
 
     /**
      * 封装类转对象

@@ -24,4 +24,9 @@ public interface UserConstant {
     String ADMIN_ROLE = "admin";
     
     // endregion
+
+    /**
+     * 用户默认头像
+     */
+    String DEFAULT_AVATAR = "https://picture-1327171626.cos.ap-beijing.myqcloud.com/avatar/nan_avatar.png";
 }

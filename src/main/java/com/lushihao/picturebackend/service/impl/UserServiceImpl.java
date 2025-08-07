@@ -13,6 +13,7 @@ import com.lushihao.picturebackend.constant.UserConstant;
 import com.lushihao.picturebackend.exception.BusinessException;
 import com.lushihao.picturebackend.exception.ErrorCode;
 import com.lushihao.picturebackend.exception.ThrowUtils;
+import com.lushihao.picturebackend.manager.auth.StpKit;
 import com.lushihao.picturebackend.model.dto.user.*;
 import com.lushihao.picturebackend.model.entity.User;
 import com.lushihao.picturebackend.model.enums.UserRoleEnum;
@@ -80,6 +81,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 生成一个8位的随机英文字母
         String randomSuffix  = RandomUtil.randomString(RandomUtil.BASE_CHAR, 8);
         user.setUserName("初始用户" + randomSuffix);
+        // 设置一个默认头像
+        user.setUserAvatar(UserConstant.DEFAULT_AVATAR);
         user.setUserPassword(encryptedPassword);
         user.setUserRole(UserRoleEnum.User.getValue());
         boolean idSaved = this.save(user);
@@ -130,6 +133,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         ThrowUtils.throwIf(user == null,ErrorCode.PARAMS_ERROR,"用户或密码错误");
         // 3.记录用户的登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        StpKit.SPACE.login(user.getId());
+        // 4. 记录用户登录态到 Sa-token，便于空间鉴权时使用，注意保证该用户信息与 SpringSession 中的信息过期时间一致
+        StpKit.SPACE.getSession().set(USER_LOGIN_STATE, user);
         // 4.通过这个登录态 我们可以来获取当前登录用户
         return getLoginUserVO(user);
     }

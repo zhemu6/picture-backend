@@ -17,11 +17,12 @@
             <result property="editTime" column="edit_time" />
             <result property="updateTime" column="update_time" />
             <result property="isDelete" column="is_delete" />
+        <result property="spaceType" column="space_type"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,space_name,space_level,max_size,max_count,total_size,
         total_count,user_id,create_time,edit_time,update_time,
-        is_delete
+        is_delete,space_type
     </sql>
 </mapper>

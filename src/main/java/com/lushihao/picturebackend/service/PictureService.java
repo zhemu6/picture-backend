@@ -1,13 +1,10 @@
 package com.lushihao.picturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.lushihao.picturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
-import com.lushihao.picturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.lushihao.picturebackend.api.aliyunai.model.CreateTaskResponse;
 import com.lushihao.picturebackend.common.DeleteRequest;
 import com.lushihao.picturebackend.model.dto.picture.*;
-import com.lushihao.picturebackend.model.dto.user.UserLoginRequest;
 import com.lushihao.picturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lushihao.picturebackend.model.entity.User;
@@ -15,7 +12,6 @@ import com.lushihao.picturebackend.model.vo.PictureVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.util.List;
 
 /**
@@ -143,7 +139,16 @@ public interface PictureService extends IService<Picture> {
      * 创建AI拓图的工具类
      * @param createPictureOutPaintingTaskRequest 拓图请求
      * @param request 获取用户信息
-     * @return CreateOutPaintingTaskResponse对象
+     * @return CreateTaskResponse对象
      */
-    CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, HttpServletRequest request);
+    CreateTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, HttpServletRequest request);
+
+    /**
+     * 创建AI风格化的工具类
+     *
+     * @param createPictureCommonSynthesisTaskRequest 风格化请求
+     * @param request                                 获取用户信息
+     * @return CreateTaskResponse对象
+     */
+    CreateTaskResponse createPictureCommonSynthesisTask(CreatePictureCommonSynthesisTaskRequest createPictureCommonSynthesisTaskRequest, HttpServletRequest request);
 }
