@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.lushihao.picturebackend.mapper.PictureCommentMapper">
+<mapper namespace="com.lushihao.picture.infrastructure.mapper.PictureCommentMapper">
 
-    <resultMap id="BaseResultMap" type="com.lushihao.picturebackend.model.entity.PictureComment">
+    <resultMap id="BaseResultMap" type="com.lushihao.picture.domain.picture.entity.PictureComment">
             <id property="id" column="id" />
             <result property="userId" column="user_id" />
             <result property="pictureId" column="picture_id" />

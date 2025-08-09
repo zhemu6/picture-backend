@@ -1,6 +1,6 @@
 spring:
   application:
-    name: picture-backend
+    name: picture-backend-ddd
   profiles:
     active: local
   servlet:
