@@ -7,6 +7,7 @@ import com.lushihao.picture.domain.picture.entity.Picture;
 import com.lushihao.picture.domain.picture.repository.PictureRepository;
 import com.lushihao.picture.domain.user.entity.User;
 import com.lushihao.picture.domain.user.repository.UserRepository;
+import com.lushihao.picture.infrastructure.mapper.PictureLikeMapper;
 import com.lushihao.picture.infrastructure.mapper.PictureMapper;
 import com.lushihao.picture.infrastructure.mapper.UserMapper;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,8 @@ public class PictureRepositoryImpl extends ServiceImpl<PictureMapper, Picture> i
 
     @Resource
     private PictureMapper pictureMapper;
+    @Resource
+    private PictureLikeMapper pictureLikeMapper;
 
     @Override
     public List<Object> selectPictureSizes(QueryWrapper<Picture> queryWrapper) {
@@ -58,5 +61,15 @@ public class PictureRepositoryImpl extends ServiceImpl<PictureMapper, Picture> i
                 .stream()
                 .map(size -> ((Number) size).longValue())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long countLikesByUserId(Long userId) {
+        return pictureLikeMapper.countLikesByUserId(userId);
+    }
+
+    @Override
+    public Long countUploadsByUserId(Long userId) {
+        return pictureLikeMapper.countUploadsByUserId(userId);
     }
 }

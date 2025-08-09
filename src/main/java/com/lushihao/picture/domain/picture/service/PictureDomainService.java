@@ -154,4 +154,8 @@ public interface PictureDomainService {
     List<Long> getPictureSizes(QueryWrapper<Picture> queryWrapper);
 
     Picture getPictureByPictureId(Long pictureId);
+
+    Long getUserLikeCount(Long userId);
+
+    Long getUserUploadCount(Long userId);
 }

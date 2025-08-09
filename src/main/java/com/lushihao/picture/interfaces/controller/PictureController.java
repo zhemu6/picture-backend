@@ -235,12 +235,6 @@ public class PictureController {
             // 我们需要查私有空间的
             boolean hasPermission = StpKit.SPACE.hasPermission(SpaceUserPermissionConstant.PICTURE_VIEW);
             ThrowUtils.throwIf(!hasPermission, ErrorCode.NO_AUTH_ERROR);
-            // 如果是私有空间
-//            User loginUser = userService.getLoginUser(request);
-//            Space space = spaceService.getById(spaceId);
-//            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
-//            // 如果空间存在 则只有空间管理员可以使用
-//            ThrowUtils.throwIf(!space.getUserId().equals(loginUser.getId()), ErrorCode.NO_AUTH_ERROR, "只有空间管理员可以使用");
         }
 
         // 查询数据库

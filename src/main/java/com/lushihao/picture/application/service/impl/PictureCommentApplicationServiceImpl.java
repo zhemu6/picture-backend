@@ -163,8 +163,8 @@ public class PictureCommentApplicationServiceImpl implements PictureCommentAppli
                 vo.setUserAvatar(user.getUserAvatar());
             }
 
-            // 设置是否为本人
-            vo.setIsSelf(loginUserId.equals(comment.getUserId()));
+            // 设置是否为本人 如果是管理员也可以删除其他人的评论
+            vo.setIsSelf(loginUserId.equals(comment.getUserId())||loginUser.isAdmin());
 
             return vo;
         }).collect(Collectors.toList());

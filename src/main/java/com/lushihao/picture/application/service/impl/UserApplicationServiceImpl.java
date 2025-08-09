@@ -3,6 +3,7 @@ package com.lushihao.picture.application.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
+import com.lushihao.picture.application.service.PictureApplicationService;
 import com.lushihao.picture.domain.user.service.UserDomainService;
 import com.lushihao.picture.infrastructure.common.DeleteRequest;
 import com.lushihao.picture.interfaces.dto.user.*;
@@ -12,6 +13,7 @@ import com.lushihao.picture.domain.user.entity.User;
 import com.lushihao.picture.interfaces.vo.user.LoginUserVO;
 import com.lushihao.picture.interfaces.vo.user.UserVO;
 import com.lushihao.picture.application.service.UserApplicationService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -31,7 +33,9 @@ public class UserApplicationServiceImpl implements UserApplicationService {
 
     @Resource
     private UserDomainService userDomainService;
-
+    @Resource
+    @Lazy
+    private PictureApplicationService pictureApplicationService;
     /**
      * 用户注册功能
      *
@@ -163,7 +167,12 @@ public class UserApplicationServiceImpl implements UserApplicationService {
      */
     @Override
     public UserVO getUserVOById(Long id) {
-        return userDomainService.getUserVOById(id);
+        UserVO userVO = userDomainService.getUserVOById(id);
+        Long userLikeCount = pictureApplicationService.getUserLikeCount(userVO.getId());
+        userVO.setBeLikedCount(userLikeCount);
+        Long userUploadCount = pictureApplicationService.getUserUploadCount(userVO.getId());
+        userVO.setUploadCount(userUploadCount);
+        return userVO;
     }
 
     /**

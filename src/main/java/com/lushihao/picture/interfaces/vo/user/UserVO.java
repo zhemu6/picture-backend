@@ -50,7 +50,14 @@ public class UserVO implements Serializable {
      * 创建时间
      */
     private Date createTime;
-
-
+    // 新增业务逻辑
+    /**
+     * 被点赞数
+     */
+    private Long beLikedCount;
+    /**
+     * 上传图片数
+     */
+    private Long uploadCount;
 
 }

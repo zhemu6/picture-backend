@@ -796,6 +796,18 @@ public class PictureDomainServiceImpl implements PictureDomainService {
                 .one();
     }
 
+    @Override
+    public Long getUserLikeCount(Long userId) {
+        ThrowUtils.throwIf(userId == null || userId <= 0, ErrorCode.PARAMS_ERROR, "用户id异常");
+        return pictureRepository.countLikesByUserId(userId);
+    }
+
+    @Override
+    public Long getUserUploadCount(Long userId) {
+        ThrowUtils.throwIf(userId == null || userId <= 0, ErrorCode.PARAMS_ERROR, "用户id异常");
+        return pictureRepository.countUploadsByUserId(userId);
+    }
+
 
 }
 

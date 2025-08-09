@@ -173,7 +173,6 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>com.lushihao.picture.PictureBackendApplication</mainClass>
-                    <skip>true</skip>
                 </configuration>
                 <executions>
                     <execution>

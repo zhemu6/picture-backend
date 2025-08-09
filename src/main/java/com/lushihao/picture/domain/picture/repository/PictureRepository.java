@@ -53,4 +53,7 @@ public interface PictureRepository extends IService<Picture> {
      */
     List<Long> getPictureSizes(QueryWrapper<Picture> queryWrapper);
 
+    Long countLikesByUserId(Long userId);
+
+    Long countUploadsByUserId(Long userId);
 }

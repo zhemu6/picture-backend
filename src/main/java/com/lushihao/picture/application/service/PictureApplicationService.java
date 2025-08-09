@@ -176,7 +176,25 @@ public interface PictureApplicationService {
     List<String> selectTageJsonList(QueryWrapper<Picture> queryWrapper);
 
     List<Map<String, Object>> selectTime(QueryWrapper<Picture> queryWrapper);
+
     List<Long> getPictureSizes(QueryWrapper<Picture> queryWrapper);
 
     Picture getPictureByPictureId(Long pictureId);
+
+    /**
+     * 获得指定用户的点赞数
+     * @param userId 用户id
+     * @return 点赞数
+     */
+    Long getUserLikeCount(Long userId);
+
+    /**
+     * 获得指定用户的上传数
+     * @param userId 用户id
+     * @return 上传数
+     */
+    Long getUserUploadCount(Long userId);
+
+
+
 }

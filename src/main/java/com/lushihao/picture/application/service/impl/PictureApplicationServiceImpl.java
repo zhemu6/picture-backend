@@ -325,6 +325,16 @@ public class PictureApplicationServiceImpl implements PictureApplicationService 
         return pictureDomainService.getPictureByPictureId(pictureId);
     }
 
+    @Override
+    public Long getUserLikeCount(Long userId) {
+        return pictureDomainService.getUserLikeCount(userId);
+    }
+    @Override
+    public Long getUserUploadCount(Long userId) {
+        return pictureDomainService.getUserUploadCount(userId);
+    }
+
+
 
     @Override
     public Long getPictureLikeCount(Long pictureId) {
@@ -335,6 +345,7 @@ public class PictureApplicationServiceImpl implements PictureApplicationService 
     public Long getPictureFavoriteCount(Long pictureId) {
         return pictureFavoriteApplicationService.countByPictureId(pictureId);
     }
+
 
 }
 

@@ -111,5 +111,6 @@ public interface UserApplicationService{
 
     List<User> listByIds(Set<Long> userIdSet);
 
+
 }
 
