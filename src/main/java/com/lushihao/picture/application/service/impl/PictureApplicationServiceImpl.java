@@ -1,6 +1,7 @@
 package com.lushihao.picture.application.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,12 +9,15 @@ import com.lushihao.picture.application.service.PictureApplicationService;
 import com.lushihao.picture.application.service.PictureFavoriteApplicationService;
 import com.lushihao.picture.application.service.PictureLikeApplicationService;
 import com.lushihao.picture.application.service.UserApplicationService;
+import com.lushihao.picture.domain.picture.entity.PictureRank;
 import com.lushihao.picture.domain.picture.service.PictureDomainService;
+import com.lushihao.picture.domain.picture.service.PictureRankDomainService;
 import com.lushihao.picture.infrastructure.api.aliyunai.model.CreateTaskResponse;
 import com.lushihao.picture.infrastructure.common.DeleteRequest;
 import com.lushihao.picture.infrastructure.exception.ErrorCode;
 import com.lushihao.picture.infrastructure.exception.ThrowUtils;
 import com.lushihao.picture.interfaces.dto.picture.*;
+import com.lushihao.picture.interfaces.vo.picture.PictureRankVO;
 import com.lushihao.picture.interfaces.vo.user.UserVO;
 import com.lushihao.picture.infrastructure.manager.upload.FilePictureUpload;
 import com.lushihao.picture.domain.picture.entity.Picture;
@@ -41,6 +45,8 @@ public class PictureApplicationServiceImpl implements PictureApplicationService 
 
     @Resource
     private PictureDomainService pictureDomainService;
+    @Resource
+    private PictureRankDomainService pictureRankDomainService;
     @Resource
     private UserApplicationService userApplicationService;
     @Resource
@@ -344,6 +350,31 @@ public class PictureApplicationServiceImpl implements PictureApplicationService 
     @Override
     public Long getPictureFavoriteCount(Long pictureId) {
         return pictureFavoriteApplicationService.countByPictureId(pictureId);
+    }
+
+
+    @Override
+    public List<PictureRankVO> getRankByType(String type) {
+        List<PictureRank> rankCountList = pictureRankDomainService.getRankByType(type);
+
+        return rankCountList.stream().map(doObj -> {
+            Long pictureID = doObj.getPictureId();
+            Picture picture = pictureDomainService.getById(pictureID);
+
+            PictureRankVO vo = new PictureRankVO();
+            vo.setPictureId(doObj.getPictureId());
+            vo.setLikeCount(doObj.getLikeCount());
+            vo.setUrl(picture.getUrl());
+            vo.setThumbnailUrl(picture.getThumbnailUrl());
+            vo.setIntroduction(picture.getIntroduction());
+            vo.setName(picture.getName());
+            // 类型不同，需要转换
+            vo.setTags(JSONUtil.toList(picture.getTags(), String.class));
+            vo.setCategory(picture.getCategory());
+            vo.setRankNum(doObj.getRankNum());
+            vo.setType(doObj.getType());
+            return vo;
+        }).collect(Collectors.toList());
     }
 
 

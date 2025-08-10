@@ -9,6 +9,7 @@ import com.lushihao.picture.interfaces.dto.picture.*;
 import com.lushihao.picture.domain.picture.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lushihao.picture.domain.user.entity.User;
+import com.lushihao.picture.interfaces.vo.picture.PictureRankVO;
 import com.lushihao.picture.interfaces.vo.picture.PictureVO;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -196,5 +197,9 @@ public interface PictureApplicationService {
     Long getUserUploadCount(Long userId);
 
 
+    /**
+     * 获得指定类型的榜单前十名
+     */
+    List<PictureRankVO> getRankByType(String type);
 
 }

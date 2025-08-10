@@ -24,6 +24,7 @@ import com.lushihao.picture.infrastructure.exception.ErrorCode;
 import com.lushihao.picture.infrastructure.exception.ThrowUtils;
 import com.lushihao.picture.interfaces.assemble.PictureAssembler;
 import com.lushihao.picture.interfaces.dto.picture.*;
+import com.lushihao.picture.interfaces.vo.picture.PictureRankVO;
 import com.lushihao.picture.interfaces.vo.picture.PictureTagCategory;
 import com.lushihao.picture.interfaces.vo.picture.PictureVO;
 import com.lushihao.picture.shared.auth.SpaceUserAuthManager;
@@ -35,6 +36,7 @@ import com.lushihao.picture.application.service.SpaceApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -486,6 +488,15 @@ public class PictureController {
         ThrowUtils.throwIf(StrUtil.isBlank(taskId), ErrorCode.PARAMS_ERROR);
         GetCommonSynthesisTaskResponse task = aliYunAiApi.getCommonSynthesisTask(taskId);
         return ResultUtils.success(task);
+    }
+
+
+    @GetMapping("/rank/{type}")
+    public BaseResponse<List<PictureRankVO>> rankPicture(@PathVariable String type) {
+        log.info(type);
+        ThrowUtils.throwIf(!("day".equals(type) || "week".equals(type) || "month".equals(type)),ErrorCode.PARAMS_ERROR,"目前排行榜仅支持统计 日/周/月");
+        List<PictureRankVO> pictureRankVOList = pictureApplicationService.getRankByType(type);
+        return ResultUtils.success(pictureRankVOList);
     }
 
 }
